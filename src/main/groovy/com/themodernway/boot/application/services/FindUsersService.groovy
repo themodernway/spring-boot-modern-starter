@@ -37,6 +37,6 @@ public class FindUsersService extends RESTServiceSupport implements GSQLGroovyTr
     @Override
     def call(final IRESTRequestContext context, final JSONObject object) throws Exception
     {
-        jsql('select * from users')
+        jquery('users', 'SELECT * FROM users')
     }
 }
