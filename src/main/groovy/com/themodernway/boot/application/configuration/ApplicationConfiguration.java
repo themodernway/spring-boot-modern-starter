@@ -11,7 +11,7 @@
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
- * limitations under the License. ThreadLocal.withInitial(supplier);
+ * limitations under the License.
  */
 
 package com.themodernway.boot.application.configuration;
@@ -22,6 +22,9 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.ContextLoaderListener;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.themodernway.server.core.json.binder.JSONBinder.CoreObjectMapper;
+
 @Configuration
 @Profile({ "development", "production" })
 @ImportResource({ "classpath:/com/themodernway/boot/application/configuration/ApplicationContext.xml" })
@@ -31,5 +34,11 @@ public class ApplicationConfiguration
     protected ContextLoaderListener listener()
     {
         return new SpringBootContextLoaderListener();
+    }
+
+    @Bean
+    protected ObjectMapper jsonMapper()
+    {
+        return new CoreObjectMapper();
     }
 }
