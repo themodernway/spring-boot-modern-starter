@@ -30,13 +30,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception
     {
-        auth.inMemoryAuthentication().withUser("admin").password("abc123").authorities("ADMIN");
+        auth.inMemoryAuthentication().withUser("root").password("$2a$10$V3AkpCyE76ZNe3UZGlia8e52.1JU9aSj864nCMO3u28Dj6qPzFA66").authorities("ADMIN", "ACTUATOR");
     }
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception
     {
-        http.authorizeRequests().antMatchers("/services/**").permitAll().antMatchers("/actuator/**").hasAuthority("ADMIN").anyRequest().permitAll().and().httpBasic();
+        http.csrf().disable();
+
+        http.authorizeRequests().antMatchers("/services/**", "/rest/**").permitAll().antMatchers("/actuator/**").hasAuthority("ACTUATOR").anyRequest().permitAll().and().httpBasic();
     }
 
     @Bean

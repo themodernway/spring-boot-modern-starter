@@ -22,9 +22,6 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.ContextLoaderListener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.themodernway.server.core.json.binder.JSONBinder.CoreObjectMapper;
-
 @Configuration
 @Profile({ "development", "production" })
 @ImportResource({ "classpath:/com/themodernway/boot/application/configuration/ApplicationContext.xml" })
@@ -34,11 +31,5 @@ public class ApplicationConfiguration
     protected ContextLoaderListener listener()
     {
         return new SpringBootContextLoaderListener();
-    }
-
-    @Bean
-    protected ObjectMapper jsonMapper()
-    {
-        return new CoreObjectMapper();
     }
 }

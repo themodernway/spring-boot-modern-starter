@@ -21,7 +21,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 
 @ServletComponentScan
-@SpringBootApplication()
+@SpringBootApplication
 public class Application
 {
     public static final void main(final String... args)

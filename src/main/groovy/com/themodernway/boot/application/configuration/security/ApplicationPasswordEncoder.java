@@ -16,19 +16,40 @@
 
 package com.themodernway.boot.application.configuration.security;
 
+import org.slf4j.Logger;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class ApplicationPasswordEncoder implements PasswordEncoder
+import com.themodernway.server.core.logging.IHasLogging;
+import com.themodernway.server.core.logging.LoggingOps;
+
+public class ApplicationPasswordEncoder extends BCryptPasswordEncoder implements PasswordEncoder, IHasLogging
 {
+    private final Logger m_logs = LoggingOps.getLogger(getClass());
+
     @Override
     public String encode(final CharSequence password)
     {
-        return password.toString();
+        if (logger().isInfoEnabled())
+        {
+            logger().info("encode()");
+        }
+        return super.encode(password);
     }
 
     @Override
     public boolean matches(final CharSequence password, final String encoded)
     {
-        return password.toString().equals(encoded);
+        if (logger().isInfoEnabled())
+        {
+            logger().info("matches()");
+        }
+        return super.matches(password, encoded);
+    }
+
+    @Override
+    public Logger logger()
+    {
+        return m_logs;
     }
 }
