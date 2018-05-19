@@ -16,40 +16,39 @@
 
 package com.themodernway.boot.application.configuration.security;
 
-import org.slf4j.Logger;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.themodernway.server.core.logging.IHasLogging;
-import com.themodernway.server.core.logging.LoggingOps;
+import com.themodernway.common.api.java.util.CommonOps;
+import com.themodernway.server.core.security.ICryptoProvider;
+import com.themodernway.server.core.security.tools.Hashing;
+import com.themodernway.server.core.security.tools.ICheckSum;
 
-public class ApplicationPasswordEncoder extends BCryptPasswordEncoder implements PasswordEncoder, IHasLogging
+public class ApplicationPasswordEncoder implements PasswordEncoder
 {
-    private final Logger m_logs = LoggingOps.getLogger(getClass());
+    private final ICheckSum       m_crc32;
+
+    private final ICryptoProvider m_crypt;
+
+    public ApplicationPasswordEncoder(final ICryptoProvider crypt)
+    {
+        m_crc32 = Hashing.crc32();
+
+        m_crypt = CommonOps.requireNonNull(crypt, "CryptoProvider was null.");
+    }
 
     @Override
     public String encode(final CharSequence password)
     {
-        if (logger().isInfoEnabled())
-        {
-            logger().info("encode()");
-        }
-        return super.encode(password);
+        final String stringpw = password.toString();
+
+        return m_crypt.encrypt(m_crypt.makeBCrypt(m_crypt.sha512(stringpw, m_crc32.tohex(stringpw), 50000)));
     }
 
     @Override
     public boolean matches(final CharSequence password, final String encoded)
     {
-        if (logger().isInfoEnabled())
-        {
-            logger().info("matches()");
-        }
-        return super.matches(password, encoded);
-    }
+        final String stringpw = password.toString();
 
-    @Override
-    public Logger logger()
-    {
-        return m_logs;
+        return m_crypt.testBCrypt(m_crypt.sha512(stringpw, m_crc32.tohex(stringpw), 50000), m_crypt.decrypt(encoded));
     }
 }

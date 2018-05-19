@@ -17,27 +17,26 @@
 package com.themodernway.boot.application.rest.services
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.context.request.ServletRequestAttributes
 
-import com.themodernway.server.core.NanoTimer
+import com.themodernway.boot.application.support.CoreBootGroovyTrait
 import com.themodernway.server.core.json.JSONObject
-import com.themodernway.server.core.support.CoreGroovyTrait
 import com.themodernway.server.mongodb.support.MongoDBTrait
 import com.themodernway.server.sql.support.GSQLGroovyTrait
 
 import groovy.transform.CompileStatic
-import groovy.transform.Memoized
 
 @CompileStatic
 @RestController
 @RequestMapping('/rest')
-class GroovyRestServices implements CoreGroovyTrait, MongoDBTrait, GSQLGroovyTrait
+class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
 {
     @Autowired
     private PasswordEncoder m_encoder
@@ -58,6 +57,12 @@ class GroovyRestServices implements CoreGroovyTrait, MongoDBTrait, GSQLGroovyTra
     def name()
     {
         json(name: 'dean', age: 54, uuid: uuid())
+    }
+
+    @GetMapping('/user')
+    def user()
+    {
+        json(user: getUserDetails())
     }
 
     @GetMapping('/mongo')
@@ -94,10 +99,12 @@ class GroovyRestServices implements CoreGroovyTrait, MongoDBTrait, GSQLGroovyTra
         json(time: timer.toString(), posts: posts)
     }
 
-    @GetMapping('/pass/{text}')
-    def pass(@PathVariable String text)
+    @PostMapping('/password')
+    def password(@RequestBody JSONObject body)
     {
-        json(pass: text, encoded: m_encoder.encode(text))
+        def pass = body['password'] as String
+
+        json(encoded: m_encoder.encode(pass))
     }
 
     @PostMapping('/echo')
@@ -106,14 +113,24 @@ class GroovyRestServices implements CoreGroovyTrait, MongoDBTrait, GSQLGroovyTra
         json(body: body)
     }
 
-    @Memoized
-    def getBuildDescriptors()
+    @GetMapping('/attrs')
+    def attrs()
     {
-        getBuildDescriptorProvider().toJSONObject()
+        def path = '-none-'
+        def ctxt = '-none-'
+        def attr = getCurrentRequestAttributes(ServletRequestAttributes)
+        if (attr)
+        {
+            path = attr.getRequest().getRequestURI()
+            ctxt = attr.getRequest().getContextPath()
+        }
+        json(path: path, ctxt: ctxt)
     }
 
-    def NanoTimer nstimer()
+    @GetMapping('/admin')
+    @PreAuthorize("hasAuthority('ADMIN')")
+    def admin()
     {
-        new NanoTimer()
+        json(good: true)
     }
 }

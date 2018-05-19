@@ -19,18 +19,22 @@ package com.themodernway.boot.application.configuration.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import com.themodernway.server.core.security.ICryptoProvider;
+
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter
 {
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception
     {
-        auth.inMemoryAuthentication().withUser("root").password("$2a$10$V3AkpCyE76ZNe3UZGlia8e52.1JU9aSj864nCMO3u28Dj6qPzFA66").authorities("ADMIN", "ACTUATOR");
+        auth.inMemoryAuthentication().withUser("root").password("62587f16323c5f1e61b7e57897df9e2b0f9cc62f94b876161ca9a5fb9da3818cdf0a8405ebeec6c73bac989911dbddf735bafc8672dbfc672cfa2b389e98a7c57f397b6d6cb04435202f8738e20291edd6c2f71fa01c00b425bcc3a7").authorities("ADMIN", "ACTUATOR");
     }
 
     @Override
@@ -42,8 +46,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
+    public PasswordEncoder passwordEncoder(@Autowired final ICryptoProvider crypt)
     {
-        return new ApplicationPasswordEncoder();
+        return new ApplicationPasswordEncoder(crypt);
     }
 }
