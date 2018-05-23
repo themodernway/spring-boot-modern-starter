@@ -34,9 +34,7 @@
 	<import resource="classpath:/com/themodernway/server/sql/config/SQLApplicationContext.xml" />
 	
 	<import resource="classpath:/com/themodernway/server/mongodb/config/MongoDBApplicationContext.xml" />
-	
-	<import resource="classpath:/com/themodernway/server/rest/config/RESTApplicationContext.xml" />
-	
+		
 	<import resource="classpath:/com/themodernway/server/core/config/CoreApplicationContext.xml" />
 
 	<bean id="BootstrapStringCryptoProvider" class="com.themodernway.server.core.security.BootstrapStringCryptoProvider">
@@ -89,5 +87,10 @@
 		<constructor-arg ref="Gateway_SQLPooledDS" />
     	<property name="description" value="API PostgreSQL DataBase" />
     </bean>
+    
+    <bean id="ContentSimpleFileItemStorage" class="com.themodernway.server.core.file.vfs.simple.SimpleFileItemStorage" lazy-init="true">
+		<constructor-arg value="content" />
+		<constructor-arg value="/opt/content" />
+	</bean>
 	
 </beans>

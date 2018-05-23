@@ -16,10 +16,11 @@
 
 package com.themodernway.boot.application.rest.services
 
-import org.springframework.beans.factory.annotation.Autowired
+import javax.servlet.http.HttpSession
+
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -27,6 +28,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.request.ServletRequestAttributes
 
 import com.themodernway.boot.application.support.CoreBootGroovyTrait
+import com.themodernway.boot.application.support.ServicesSupport
+import com.themodernway.boot.application.support.Sessions
+import com.themodernway.server.core.ITimeSupplier
 import com.themodernway.server.core.json.JSONObject
 import com.themodernway.server.mongodb.support.MongoDBTrait
 import com.themodernway.server.sql.support.GSQLGroovyTrait
@@ -35,16 +39,13 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 @RestController
-@RequestMapping('/rest')
-class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
+@RequestMapping('/service')
+class GroovyRestServices extends ServicesSupport implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
 {
-    @Autowired
-    private PasswordEncoder m_encoder
-
-    @GetMapping('/')
+    @GetMapping()
     def root()
     {
-        json(paths: ['/build', '/name', '/mongo', '/jquery'])
+        json(mappings: Sessions.getMappingsList(getRequestMappingHandlerMapping(), '/service'))
     }
 
     @GetMapping('/build')
@@ -56,7 +57,7 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
     @GetMapping('/name')
     def name()
     {
-        json(name: 'dean', age: 54, uuid: uuid())
+        json(name: 'Maël Hörz\u00A9', age: 54, uuid: uuid())
     }
 
     @GetMapping('/user')
@@ -68,7 +69,7 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
     @GetMapping('/mongo')
     def mongo()
     {
-        json(collection('users').findOne(QUERY(name: 'dean')))
+        json(collection('users').findOne(name: 'dean'))
     }
 
     @GetMapping('/jquery')
@@ -77,12 +78,19 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
         jquery('jquery', 'SELECT * FROM testing')
     }
 
+    @GetMapping('/variable/{id}')
+    def variable(@PathVariable('id') String id)
+    {
+        json(id: id)
+    }
+
     @GetMapping('/remote')
     def remote()
     {
         def opers = network()
         def timer = nstimer()
-        def posts = (1..500).collect { int id ->
+        def posts = (1..500).collect
+        { int id ->
             opers.get('https://jsonplaceholder.typicode.com/comments/{id}', parameters(id: id)).json()
         }
         json(time: timer.toString(), remote: posts)
@@ -93,7 +101,8 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
     {
         def opers = network()
         def timer = nstimer()
-        def posts = parallel(1..500).collect { int id ->
+        def posts = parallel(1..500).collect
+        { int id ->
             opers.get('https://jsonplaceholder.typicode.com/comments/{id}', parameters(id: id)).json()
         }
         json(time: timer.toString(), posts: posts)
@@ -104,7 +113,7 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
     {
         def pass = body['password'] as String
 
-        json(encoded: m_encoder.encode(pass))
+        json(encoded: getPasswordEncoder().encode(pass))
     }
 
     @PostMapping('/echo')
@@ -132,5 +141,19 @@ class GroovyRestServices implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroov
     def admin()
     {
         json(good: true)
+    }
+
+    @GetMapping('/session')
+    def session(HttpSession session)
+    {
+        Sessions.getAttributeOrElseSet(session, 'time', Long, ITimeSupplier.now())
+
+        Sessions.getAttributeOrElseSet(session, 'uuid', String, uuid())
+
+        def resp = Sessions.toJSONObject(session).merge(user: getUserDetails())
+
+        Sessions.setAttribute(session, 'time', ITimeSupplier.now())
+
+        resp
     }
 }

@@ -19,15 +19,20 @@ package com.themodernway.boot.application.servlets;
 import javax.servlet.annotation.WebServlet;
 
 import com.themodernway.common.api.java.util.CommonOps;
-import com.themodernway.server.rest.servlet.RESTServlet;
+import com.themodernway.server.core.servlet.ContentGetServlet;
 
-@WebServlet("/services/*")
-public class RESTWebServlet extends RESTServlet
+@WebServlet("/content/*")
+public class ContentServlet extends ContentGetServlet
 {
-    private static final long serialVersionUID = 5896552596438623184L;
+    private static final long serialVersionUID = 1L;
 
-    public RESTWebServlet()
+    public ContentServlet()
     {
-        super(0, CommonOps.arrayList(), 0, CommonOps.arrayList(), CommonOps.NULL(), CommonOps.NULL(), CommonOps.NULL());
+        this("content");
+    }
+
+    public ContentServlet(final String name)
+    {
+        super(name, false, 0d, CommonOps.arrayList(), CommonOps.NULL(), CommonOps.NULL(), CommonOps.NULL());
     }
 }
