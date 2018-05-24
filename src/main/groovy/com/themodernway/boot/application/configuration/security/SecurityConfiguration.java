@@ -66,13 +66,23 @@ public class SecurityConfiguration
 
     @Order(3)
     @Configuration
+    public static class MonitorSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
+    {
+        @Override
+        protected void configure(final HttpSecurity http) throws Exception
+        {
+            http.authorizeRequests().antMatchers("/monitor/**").permitAll().anyRequest().authenticated().and().httpBasic();
+        }
+    }
+
+    @Order(4)
+    @Configuration
     public static class ActuatorSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
     {
         @Override
         protected void configure(final HttpSecurity http) throws Exception
         {
             http.authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).hasAuthority("ACTUATOR").and().cors().and().httpBasic();
-            //http.authorizeRequests().antMatchers("/actuator/**").hasAuthority("ACTUATOR").anyRequest().authenticated().and().httpBasic();
         }
     }
 

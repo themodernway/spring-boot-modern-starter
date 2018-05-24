@@ -28,9 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.request.ServletRequestAttributes
 
 import com.themodernway.boot.application.support.CoreBootGroovyTrait
-import com.themodernway.boot.application.support.ServicesSupport
-import com.themodernway.boot.application.support.Sessions
-import com.themodernway.server.core.ITimeSupplier
+import com.themodernway.boot.application.support.ServiceSupport
 import com.themodernway.server.core.json.JSONObject
 import com.themodernway.server.mongodb.support.MongoDBTrait
 import com.themodernway.server.sql.support.GSQLGroovyTrait
@@ -40,12 +38,12 @@ import groovy.transform.CompileStatic
 @CompileStatic
 @RestController
 @RequestMapping('/service')
-class GroovyRestServices extends ServicesSupport implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
+class GroovyService extends ServiceSupport implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
 {
     @GetMapping()
     def root()
     {
-        json(mappings: Sessions.getMappingsList(getRequestMappingHandlerMapping(), '/service'))
+        json(mappings: getMappingsList())
     }
 
     @GetMapping('/build')
@@ -109,11 +107,17 @@ class GroovyRestServices extends ServicesSupport implements CoreBootGroovyTrait,
     }
 
     @PostMapping('/password')
-    def password(@RequestBody JSONObject body)
+    def encode(@RequestBody JSONObject body)
     {
         def pass = body['password'] as String
 
         json(encoded: getPasswordEncoder().encode(pass))
+    }
+
+    @GetMapping('/password')
+    def password()
+    {
+        json(password: getPasswordEncoder().encode(getCryptoProvider().getRandomPass()))
     }
 
     @PostMapping('/echo')
@@ -146,14 +150,15 @@ class GroovyRestServices extends ServicesSupport implements CoreBootGroovyTrait,
     @GetMapping('/session')
     def session(HttpSession session)
     {
-        Sessions.getAttributeOrElseSet(session, 'time', Long, ITimeSupplier.now())
+        if (session.isNew())
+        {
+            setAttribute(session, 'uuid', uuid())
 
-        Sessions.getAttributeOrElseSet(session, 'uuid', String, uuid())
+            setAttribute(session, 'time', getCurrentTime())
+        }
+        toJSONObject(session).identity {
 
-        def resp = Sessions.toJSONObject(session).merge(user: getUserDetails())
-
-        Sessions.setAttribute(session, 'time', ITimeSupplier.now())
-
-        resp
+            setAttribute(session, 'time', getCurrentTime())
+        }
     }
 }
