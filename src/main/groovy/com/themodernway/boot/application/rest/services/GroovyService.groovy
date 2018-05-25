@@ -154,11 +154,12 @@ class GroovyService extends ServiceSupport implements CoreBootGroovyTrait, Mongo
         {
             setAttribute(session, 'uuid', uuid())
 
-            setAttribute(session, 'time', getCurrentTime())
+            setAttribute(session, 'last', getCurrentTime())
         }
-        toJSONObject(session).identity {
+        def valu = toJSONObject(session)
 
-            setAttribute(session, 'time', getCurrentTime())
-        }
+        setAttribute(session, 'last', getCurrentTime())
+
+        valu
     }
 }

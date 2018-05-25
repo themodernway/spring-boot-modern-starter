@@ -68,11 +68,12 @@ class GroovyMonitor extends ServiceSupport implements CoreBootGroovyTrait
         {
             setAttribute(session, 'uuid', uuid())
 
-            setAttribute(session, 'time', getCurrentTime())
+            setAttribute(session, 'last', getCurrentTime())
         }
-        toJSONObject(session).identity {
+        def valu = toJSONObject(session)
 
-            setAttribute(session, 'time', getCurrentTime())
-        }
+        setAttribute(session, 'last', getCurrentTime())
+
+        valu
     }
 }

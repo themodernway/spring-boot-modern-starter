@@ -60,7 +60,7 @@ public class SecurityConfiguration
         @Override
         protected void configure(final HttpSecurity http) throws Exception
         {
-            http.authorizeRequests().antMatchers("/service/**").permitAll().anyRequest().authenticated().and().httpBasic();
+            http.authorizeRequests().antMatchers("/service/**").permitAll().anyRequest().permitAll().and().httpBasic();
         }
     }
 
@@ -71,7 +71,7 @@ public class SecurityConfiguration
         @Override
         protected void configure(final HttpSecurity http) throws Exception
         {
-            http.authorizeRequests().antMatchers("/monitor/**").permitAll().anyRequest().authenticated().and().httpBasic();
+            http.authorizeRequests().antMatchers("/monitor/**").permitAll().anyRequest().permitAll().and().httpBasic();
         }
     }
 
