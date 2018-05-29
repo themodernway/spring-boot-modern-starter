@@ -25,16 +25,17 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
-import com.themodernway.boot.application.support.CoreBootGroovyTrait
-import com.themodernway.boot.application.support.ServiceSupport
+import com.themodernway.common.api.java.util.CommonOps
 import com.themodernway.server.core.json.JSONObject
+import com.themodernway.server.core.support.CoreGroovyTrait
+import com.themodernway.server.core.support.spring.boot.BootServiceSupport
 
 import groovy.transform.CompileStatic
 
 @CompileStatic
 @RestController
 @RequestMapping('/monitor')
-class GroovyMonitor extends ServiceSupport implements CoreBootGroovyTrait
+class GroovyMonitor extends BootServiceSupport implements CoreGroovyTrait
 {
     @GetMapping()
     def root()
@@ -68,11 +69,11 @@ class GroovyMonitor extends ServiceSupport implements CoreBootGroovyTrait
         {
             setAttribute(session, 'uuid', uuid())
 
-            setAttribute(session, 'last', getCurrentTime())
+            setAttribute(session, 'last', CommonOps.getCurrentClock())
         }
         def valu = toJSONObject(session)
 
-        setAttribute(session, 'last', getCurrentTime())
+        setAttribute(session, 'last', CommonOps.getCurrentClock())
 
         valu
     }

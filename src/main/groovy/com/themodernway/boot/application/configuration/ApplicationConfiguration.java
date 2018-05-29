@@ -22,6 +22,8 @@ import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.ContextLoaderListener;
 
+import com.themodernway.server.core.support.spring.SpringBootContextLoaderListener;
+
 @Configuration
 @Profile({ "development", "production" })
 @ImportResource({ "classpath:/com/themodernway/boot/application/configuration/ApplicationContext.xml" })

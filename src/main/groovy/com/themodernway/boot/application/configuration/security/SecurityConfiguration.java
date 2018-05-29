@@ -29,6 +29,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
+import com.themodernway.server.core.security.CorePasswordEncoder;
 import com.themodernway.server.core.security.ICryptoProvider;
 
 @EnableWebSecurity
@@ -89,6 +90,6 @@ public class SecurityConfiguration
     @Bean
     public PasswordEncoder passwordEncoder(@Autowired final ICryptoProvider crypt)
     {
-        return new ApplicationPasswordEncoder(crypt);
+        return new CorePasswordEncoder(crypt);
     }
 }

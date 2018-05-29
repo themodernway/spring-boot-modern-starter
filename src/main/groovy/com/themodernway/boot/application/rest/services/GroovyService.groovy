@@ -27,10 +27,11 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.context.request.ServletRequestAttributes
 
-import com.themodernway.boot.application.support.CoreBootGroovyTrait
-import com.themodernway.boot.application.support.ServiceSupport
+import com.themodernway.common.api.java.util.CommonOps
 import com.themodernway.server.core.json.JSONObject
-import com.themodernway.server.mongodb.support.MongoDBTrait
+import com.themodernway.server.core.support.CoreGroovyTrait
+import com.themodernway.server.core.support.spring.boot.BootServiceSupport
+import com.themodernway.server.mongodb.support.MongoDBGroovyTrait
 import com.themodernway.server.sql.support.GSQLGroovyTrait
 
 import groovy.transform.CompileStatic
@@ -38,7 +39,7 @@ import groovy.transform.CompileStatic
 @CompileStatic
 @RestController
 @RequestMapping('/service')
-class GroovyService extends ServiceSupport implements CoreBootGroovyTrait, MongoDBTrait, GSQLGroovyTrait
+class GroovyService extends BootServiceSupport implements CoreGroovyTrait, MongoDBGroovyTrait, GSQLGroovyTrait
 {
     @GetMapping()
     def root()
@@ -154,11 +155,11 @@ class GroovyService extends ServiceSupport implements CoreBootGroovyTrait, Mongo
         {
             setAttribute(session, 'uuid', uuid())
 
-            setAttribute(session, 'last', getCurrentTime())
+            setAttribute(session, 'last', CommonOps.getCurrentClock())
         }
         def valu = toJSONObject(session)
 
-        setAttribute(session, 'last', getCurrentTime())
+        setAttribute(session, 'last', CommonOps.getCurrentClock())
 
         valu
     }
