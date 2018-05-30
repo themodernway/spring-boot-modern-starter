@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -40,50 +39,20 @@ public class SecurityConfiguration
     @Autowired
     public void configureGlobal(final AuthenticationManagerBuilder auth) throws Exception
     {
-        auth.inMemoryAuthentication().withUser("root").password("62587f16323c5f1e61b7e57897df9e2b0f9cc62f94b876161ca9a5fb9da3818cdf0a8405ebeec6c73bac989911dbddf735bafc8672dbfc672cfa2b389e98a7c57f397b6d6cb04435202f8738e20291edd6c2f71fa01c00b425bcc3a7").authorities("ADMIN", "ACTUATOR");
+        auth.inMemoryAuthentication().withUser("root").password("fd665330ebb8ee0c00934123651b7d386563a1bca3b9fdfe92a5c548968391b0076ebd9abb25735f9d6aac92f301a57bbde0129c4026bb4c3d47c6b9f575d36c5a825c1badf44ab9741a2ad11e370b4a31e30a36741e241435e19898").authorities("ADMIN", "ACTUATOR").and().withUser("user").password("7110f603eb824e5a16c43ee2b274f25f66472de65d8708d9937837b663e66880d0041a119fb546a60f7eae5d12a7e45332b435579f0cb6fc26c7eaf030e6662477766ca2889dac602bf1932178e6fd43ce4f54890ae5c0422acb52f2").authorities("USER");
     }
 
-    @Order(1)
-    @Configuration
-    public static class ContentSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
-    {
-        @Override
-        protected void configure(final HttpSecurity http) throws Exception
-        {
-            http.antMatcher("/content/**").headers().disable().csrf().disable();
-        }
-    }
-
-    @Order(2)
-    @Configuration
-    public static class ServiceSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
-    {
-        @Override
-        protected void configure(final HttpSecurity http) throws Exception
-        {
-            http.authorizeRequests().antMatchers("/service/**").permitAll().anyRequest().permitAll().and().httpBasic();
-        }
-    }
-
-    @Order(3)
-    @Configuration
-    public static class MonitorSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
-    {
-        @Override
-        protected void configure(final HttpSecurity http) throws Exception
-        {
-            http.authorizeRequests().antMatchers("/monitor/**").permitAll().anyRequest().permitAll().and().httpBasic();
-        }
-    }
-
-    @Order(4)
     @Configuration
     public static class ActuatorSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter
     {
         @Override
         protected void configure(final HttpSecurity http) throws Exception
         {
-            http.authorizeRequests().requestMatchers(EndpointRequest.toAnyEndpoint()).hasAuthority("ACTUATOR").and().cors().and().httpBasic();
+            http.antMatcher("/service/**").csrf().disable();
+
+            http.antMatcher("/content/**").headers().disable().csrf().disable();
+
+            http.requestMatcher(EndpointRequest.toAnyEndpoint()).authorizeRequests().anyRequest().hasAuthority("ACTUATOR").and().httpBasic();
         }
     }
 
