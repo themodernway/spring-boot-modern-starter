@@ -16,12 +16,14 @@
 
 package com.themodernway.boot.application.configuration;
 
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.context.ContextLoaderListener;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.themodernway.server.core.support.spring.SpringBootContextLoaderListener;
 
 @Configuration
@@ -33,5 +35,11 @@ public class ApplicationConfiguration
     protected ContextLoaderListener listener()
     {
         return new SpringBootContextLoaderListener();
+    }
+
+    @Bean
+    protected Jackson2ObjectMapperBuilderCustomizer jackson()
+    {
+        return builder -> builder.featuresToEnable(JsonGenerator.Feature.ESCAPE_NON_ASCII);
     }
 }

@@ -8,9 +8,9 @@
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
 		<config>src/main/resources/com/themodernway/boot/application/configuration/ApplicationContext.xml</config>
+		<config>java:com.themodernway.boot.application.BootApplication</config>
 	</configs>
 	<autoconfigs>
-		<config>java:com.themodernway.boot.application.Application</config>
 	</autoconfigs>
 	<configSets>
 	</configSets>

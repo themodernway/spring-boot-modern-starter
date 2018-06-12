@@ -42,49 +42,56 @@ import groovy.transform.CompileStatic
 class GroovyService extends BootServiceSupport implements CoreGroovyTrait, MongoDBGroovyTrait, GSQLGroovyTrait
 {
     @GetMapping()
-    def root()
+    def JSONObject root()
     {
         json(mappings: getMappingsList())
     }
 
     @GetMapping('/build')
-    def build()
+    def JSONObject build()
     {
         getBuildDescriptors()
     }
 
     @GetMapping('/name')
-    def name()
+    def JSONObject name()
     {
         json(name: 'Maël Hörz\u00A9', age: 54, uuid: uuid())
     }
 
     @GetMapping('/user')
-    def user()
+    def JSONObject user()
     {
         json(user: getUserDetails())
     }
 
-    @GetMapping('/mongo')
-    def mongo()
+    @GetMapping('/mongo/{name}')
+    def JSONObject mongo(@PathVariable('name') String name)
     {
-        json(collection('users').findOne(name: 'dean'))
+        name = toTrimOrElse(name, 'root')
+        logger().info("mongoname init(${name}).")
+        def nano = nstimer()
+        collection('users').upsert(QUERY(name: name), INC(count: 1L) + SET(uuid: uuid()))
+        def valu = json('users', collection('users').find())
+        def time = nano.toString()
+        valu.set('time', time)
+        valu
     }
 
     @GetMapping('/jquery')
-    def jquery()
+    def JSONObject jquery()
     {
         jquery('jquery', 'SELECT * FROM testing')
     }
 
     @GetMapping('/variable/{id}')
-    def variable(@PathVariable('id') String id)
+    def JSONObject variable(@PathVariable('id') String id)
     {
         json(id: id)
     }
 
     @GetMapping('/remote')
-    def remote()
+    def JSONObject remote()
     {
         def opers = network()
         def timer = nstimer()
@@ -96,7 +103,7 @@ class GroovyService extends BootServiceSupport implements CoreGroovyTrait, Mongo
     }
 
     @GetMapping('/posts')
-    def posts()
+    def JSONObject posts()
     {
         def opers = network()
         def timer = nstimer()
@@ -107,28 +114,20 @@ class GroovyService extends BootServiceSupport implements CoreGroovyTrait, Mongo
         json(time: timer.toString(), posts: posts)
     }
 
-    @PostMapping('/password')
-    def encode(@RequestBody JSONObject body)
+    @PostMapping('/encode')
+    def JSONObject encode(@RequestBody JSONObject body)
     {
-        def pass = body['password'] as String
-
-        json(encoded: getPasswordEncoder().encode(pass))
-    }
-
-    @GetMapping('/password')
-    def password()
-    {
-        json(password: getPasswordEncoder().encode(getCryptoProvider().getRandomPass()))
+        json(encoded: getPasswordEncoder().encode(body['password'] as String))
     }
 
     @PostMapping('/echo')
-    def echo(@RequestBody JSONObject body)
+    def JSONObject echo(@RequestBody JSONObject body)
     {
         json(body: body)
     }
 
     @GetMapping('/attrs')
-    def attrs()
+    def JSONObject attrs()
     {
         def path = '-none-'
         def ctxt = '-none-'
@@ -143,13 +142,13 @@ class GroovyService extends BootServiceSupport implements CoreGroovyTrait, Mongo
 
     @GetMapping('/admin')
     @PreAuthorize("hasAuthority('ADMIN')")
-    def admin()
+    def JSONObject admin()
     {
         json(good: true)
     }
 
     @GetMapping('/session')
-    def session(HttpSession session)
+    def JSONObject session(HttpSession session)
     {
         if (session.isNew())
         {

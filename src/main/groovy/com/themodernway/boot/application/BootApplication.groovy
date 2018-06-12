@@ -14,18 +14,25 @@
  * limitations under the License.
  */
 
-package com.themodernway.boot.application;
+package com.themodernway.boot.application
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.boot.SpringApplication
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.web.servlet.ServletComponentScan
 
+import com.themodernway.boot.application.util.ModernApplication
+
+import groovy.transform.CompileStatic
+
+@CompileStatic
 @ServletComponentScan
 @SpringBootApplication
-public class Application
+public class BootApplication
 {
-    public static final void main(final String... args)
+    public static void main(String... args) throws Exception
     {
-        SpringApplication.run(Application.class, args);
+        ModernApplication.app(BootApplication, args)
+
+        SpringApplication.run(BootApplication, args)
     }
 }
